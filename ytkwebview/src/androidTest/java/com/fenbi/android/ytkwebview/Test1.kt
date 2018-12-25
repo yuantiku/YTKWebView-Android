@@ -1,0 +1,29 @@
+package com.fenbi.android.ytkwebview
+
+import android.support.test.InstrumentationRegistry
+import android.support.test.runner.AndroidJUnit4
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/**
+ * @author zheng on 12/25/18
+ */
+
+@RunWith(AndroidJUnit4::class)
+class Test1 {
+
+    @Test
+    fun testFileNameUtils() {
+        assertEquals(FileNameUtils.getFilePath("https://ytkwebview.com/abc/d"), "ytkwebview.com/abc/d")
+        assertEquals(FileNameUtils.getExtension("https://ytkwebview.com/test.html"), "html")
+    }
+
+    @Test
+    fun test1() {
+        val appContext = InstrumentationRegistry.getTargetContext()
+        YTKWebView.initCacheDirectory(appContext)
+        val response = YTKWebView.interceptRequest("https://ytkwebview.com/notexist.html")
+        assertEquals(response, null)
+    }
+}
