@@ -14,6 +14,7 @@ object MimeTypes {
             "png" -> "image/png"
             "jpg", "jpeg" -> "image/jpeg"
             "ico" -> "image/x-icon"
+            "json" -> "application/json"
             "woff", "ttf", "eot" -> "application/x-font-opentype"
             "mp4" -> "video/mp4"
             else -> "application/octet-stream"
