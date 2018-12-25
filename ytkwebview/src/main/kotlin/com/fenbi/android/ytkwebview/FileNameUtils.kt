@@ -10,7 +10,7 @@ object FileNameUtils {
 
     fun getFilePath(url: String): String {
         val uri = Uri.parse(url)
-        return "${uri.host}/${uri.path}"
+        return uri.host.orEmpty() + uri.path
     }
 
     fun getExtension(url: String): String? {
@@ -22,6 +22,6 @@ object FileNameUtils {
         val dot = name.lastIndexOf('.')
         return if (dot < 0) {
             null
-        } else name.substring(dot)
+        } else name.substring(dot + 1)
     }
 }
