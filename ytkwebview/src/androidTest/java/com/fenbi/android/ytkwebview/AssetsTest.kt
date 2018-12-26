@@ -16,11 +16,11 @@ class AssetsTest {
     @Test
     fun testAssets() {
         val appContext = InstrumentationRegistry.getTargetContext()
-        YTKWebView.initCacheDirectory(appContext)
+        YTKWebView.init(appContext)
         val response = YTKWebView.interceptRequest("https://ytkwebview.com/test.json")
         assertEquals(response!!.mimeType, "application/json")
         response.data.reader().use {
-            assertEquals(it.readText(), """{"a":"a"}""")
+            assertEquals("""{"a":"a"}""", it.readText())
         }
     }
 }

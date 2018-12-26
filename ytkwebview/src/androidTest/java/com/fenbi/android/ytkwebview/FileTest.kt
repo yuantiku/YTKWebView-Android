@@ -22,7 +22,7 @@ class FileTest {
     @Before
     fun prepare() {
         val appContext = InstrumentationRegistry.getTargetContext()
-        YTKWebView.initCacheDirectory(appContext)
+        YTKWebView.init(appContext)
 
         val dir = File(appContext.filesDir, "cache/ytkwebview.com")
         dir.mkdirs()
@@ -37,7 +37,7 @@ class FileTest {
         val response = YTKWebView.interceptRequest(testUrl)
         assertEquals(response!!.mimeType, "text/html")
         response.data.reader().use {
-            assertEquals(it.readText(), fileContent)
+            assertEquals(fileContent, it.readText())
         }
     }
 }

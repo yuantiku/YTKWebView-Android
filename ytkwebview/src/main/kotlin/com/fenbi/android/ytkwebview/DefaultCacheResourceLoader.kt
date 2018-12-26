@@ -10,10 +10,16 @@ import java.io.InputStream
 
 class DefaultCacheResourceLoader(
     private val context: Context,
-    private val directory: File) : CacheResourceLoader {
+    directory: String? = null) : CacheResourceLoader {
+
+    private val cacheDir = if (directory != null) {
+        File(directory)
+    } else {
+        File(context.filesDir, "cache")
+    }
 
     private val innerLoaders by lazy {
-        listOf(AssetsResourceLoader(context), FileResourceLoader(directory))
+        listOf(AssetsResourceLoader(context), FileResourceLoader(cacheDir))
     }
 
     override fun getCachedResourceStream(url: String?): InputStream? {

@@ -3,6 +3,7 @@ package com.fenbi.android.ytkwebview
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -22,8 +23,8 @@ class Test1 {
     @Test
     fun test1() {
         val appContext = InstrumentationRegistry.getTargetContext()
-        YTKWebView.initCacheDirectory(appContext)
+        YTKWebView.init(appContext)
         val response = YTKWebView.interceptRequest("https://ytkwebview.com/notexist.html")
-        assertEquals(response, null)
+        assertNull(response)
     }
 }

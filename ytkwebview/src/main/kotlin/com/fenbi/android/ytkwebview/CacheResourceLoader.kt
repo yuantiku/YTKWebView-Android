@@ -10,3 +10,10 @@ interface CacheResourceLoader {
 
     fun getCachedResourceStream(url: String?): InputStream?
 }
+
+fun ((String?) -> InputStream?).asCacheResourceLoader(): CacheResourceLoader {
+    return object : CacheResourceLoader {
+        override fun getCachedResourceStream(url: String?): InputStream? =
+            this@asCacheResourceLoader(url)
+    }
+}

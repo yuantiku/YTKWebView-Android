@@ -6,36 +6,60 @@ import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import java.io.File
 import java.io.InputStream
 
 /**
  * @author zheng on 12/21/18
  */
 
+@Suppress("StaticFieldLeak")
 object YTKWebView {
 
-    private lateinit var loader: CacheResourceLoader
-    var isInited: Boolean = false
+    private lateinit var context: Context
+
+    private var loader: CacheResourceLoader? = null
+        get() {
+            return field ?: DefaultCacheResourceLoader(context).also {
+                field = it
+            }
+        }
 
     private val protocols = listOf("http://", "https://")
 
     private val String.isSupported: Boolean
         get() = protocols.any { this.startsWith(it) }
 
-    fun initCacheDirectory(context: Context, directory: String? = null) {
-        val cacheDir = if (directory != null) {
-            File(directory)
+    fun init(context: Context): YTKWebView {
+        this.context = context.applicationContext
+        return this
+    }
+
+    fun setCacheLoader(loader: CacheResourceLoader): YTKWebView {
+        this.loader = loader
+        return this
+    }
+
+    fun setCacheLoader(loader: (url: String?) -> InputStream?): YTKWebView {
+        this.loader = loader.asCacheResourceLoader()
+        return this
+    }
+
+    fun setCacheDirectory(directory: String? = null): YTKWebView {
+        loader = DefaultCacheResourceLoader(context, directory)
+        return this
+    }
+
+    fun setupWebViewClient(webView: WebView) {
+        webView.webViewClient = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            CacheWebViewClient21()
         } else {
-            File(context.filesDir, "cache")
+            CacheWebViewClient()
         }
-        loader = DefaultCacheResourceLoader(context, cacheDir)
-        isInited = true
     }
 
     fun interceptRequest(url: String?): WebResourceResponse? {
         return if (url != null && url.isSupported) {
-            loader.getCachedResourceResponse(url)
+            loader?.getCachedResourceResponse(url)
         } else {
             null
         }
@@ -46,7 +70,7 @@ object YTKWebView {
         if (request?.method == "GET") {
             val url = request.url.toString()
             if (url.isSupported) {
-                loader.getCachedResourceResponse(url)?.let {
+                loader?.getCachedResourceResponse(url)?.let {
                     return it
                 }
             }
@@ -56,19 +80,8 @@ object YTKWebView {
 
     fun getCachedResourceStream(url: String?): InputStream? {
         if (url != null && url.isSupported) {
-            return loader.getCachedResourceStream(url)
+            return loader?.getCachedResourceStream(url)
         }
         return null
-    }
-}
-
-fun WebView.initCacheWebViewClient(context: Context, directory: String? = null) {
-    if (!YTKWebView.isInited) {
-        YTKWebView.initCacheDirectory(context, directory)
-    }
-    webViewClient = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        CacheWebViewClient21()
-    } else {
-        CacheWebViewClient()
     }
 }
