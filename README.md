@@ -6,54 +6,44 @@ view loading by intercepting the web requests to load local resources.
 Rather than implementing it as a subclass of WebView, we implement it as a
 utility that can be easily added to WebViews.
 
-## How to use
+## Basic Usage
 
-You can install the cache-loading supported WebViewClient with one call
+You can enable the cache-loading support for the WebView with one call
 
 ```kotlin
-  YtkWebView.init(applicationContext)
-      .setCacheDirectory(cacheDirectoryPath)
-      .setupWebViewClient(webView)
+  YTKWebView(context)
+      .attach(webView)
 ```
 
 where the `webView` is the reference to the WebView.
 
-However, it's impractical to directly set the WebViewClient most of the time.
-You need two steps in this case:
+## Customizations
 
-1. set the application context.
-
-```kotlin
-  ...
-  YtkWebView.init(applicationContext)
-```
-
-2. in your WebViewClient, override shouldInterceptRequest()
+Optionally, you can set the WebViewClient, cache loader etc. like this,
 
 ```kotlin
-class MyWebViewClient : WebViewClient() {
-
-    ...
-    override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse {
-        if (url != null) {
-            YtkWebView.interceptRequest(url)?.let { return it }
-        }
-        return super.shouldInterceptRequest(view, url)
-    }
-}
+  YTKWebView(context)
+      .setWebViewClient(webViewClient)
+      .setCacheLoader(cacheLoader)
+      .attach(webView)
 ```
 
-## Customize CacheResourceLoader
+**Note**: If you have your own WebViewClient, do not directly set it via the
+WebView's `setWebViewClient` method. Use `YTKWebView.setWebViewClient`
+instead.
+
+### Customize CacheResourceLoader
 
 By default, we use the `DefaultCacheResourceLoader` which loads local cached
 resources from assets and files with default mapping rules, and the default
 caching directory `${context.filesDir}/cache/` will be used.
+If the resources are packaged in the assets, they are looked up in
+the directory named `cache` in the assets by default.
 
-If you want to customize the cache resource loader,
+If you want to customize the cache resource loader, use
 
 ```kotlin
-  YtkWebView.init(applicationContext)
-      .setCacheLoader(cacheResourceLoader)
+  ytkWebView.setCacheLoader(cacheResourceLoader)
 ```
 
 The `setCacheLoader` method accepts a user-defined `cacheResourceLoader` which
@@ -61,23 +51,33 @@ could be an instance of `CacheResourceLoader` or a lambda function
 of type `(url: String?) -> InputStream?` as argument.
 
 If you want to use the `DefaultCacheResourceLoader` and only want to set
-the caching directory,
+the caching directories,
 
 ```kotlin
-  YtkWebView.init(applicationContext)
-      .setCacheDirectory(cacheDirectoryPath)
+  ytkWebView.defaultCacheLoader(
+      assetsDirectory = assetsDirectory,
+      cacheDirectory = cacheDirectoryPath)
 ```
 
 ### Mapping rules
 
-The local resources could be pre-downloaded in a caching directory, or packaged
-in the apk's assets.
-
 For example,
 
+```
 https://ytkwebview.com/file1.html => ${cacheDirectory}/ytkwebview.com/file1.html
 
 https://ytkwebview.com/a/b/c.json => ${cacheDirectory}/ytkwebview.com/a/b/c.json
+```
 
-If the resources are packaged in the assets, put them in the directory named `cache` in the
-assets.
+## Lifecycle
+
+After the `attach`,
+
+```kotlin
+  ytkWebView.getLifeCycle()
+```
+
+returns a `YTKWebViewLifecycle` that emits lifecycle state changes of the WebView.
+
+Currently the lifecycle states include `Unitialized`, `Loading`, `Initialized`,
+`Failed`, `Finished`.

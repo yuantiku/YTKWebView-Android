@@ -6,16 +6,16 @@ import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import java.io.InputStream
 
 /**
  * @author zheng on 12/21/18
  */
 
-@Suppress("StaticFieldLeak")
-object YTKWebView {
+class YTKWebView(context: Context) {
 
-    private lateinit var context: Context
+    private val context: Context = context.applicationContext
 
     private var loader: CacheResourceLoader? = null
         get() {
@@ -24,13 +24,15 @@ object YTKWebView {
             }
         }
 
-    private val protocols = listOf("http://", "https://")
+    private val ytkWebViewClient: YTKWebViewClient by lazy { YTKWebViewClient(this) }
 
-    private val String.isSupported: Boolean
-        get() = protocols.any { this.startsWith(it) }
+    fun attach(webView: WebView): YTKWebView {
+        webView.webViewClient = ytkWebViewClient
+        return this
+    }
 
-    fun init(context: Context): YTKWebView {
-        this.context = context.applicationContext
+    fun setWebViewClient(webViewClient: WebViewClient): YTKWebView {
+        ytkWebViewClient.innerClient = webViewClient
         return this
     }
 
@@ -44,21 +46,13 @@ object YTKWebView {
         return this
     }
 
-    fun setCacheDirectory(directory: String? = null): YTKWebView {
-        loader = DefaultCacheResourceLoader(context, directory)
+    fun defaultCacheLoader(assetsDirectory: String? = null, cacheDirectory: String? = null): YTKWebView {
+        loader = DefaultCacheResourceLoader(context, assetsDirectory, cacheDirectory)
         return this
     }
 
-    fun setupWebViewClient(webView: WebView) {
-        webView.webViewClient = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            CacheWebViewClient21()
-        } else {
-            CacheWebViewClient()
-        }
-    }
-
     fun interceptRequest(url: String?): WebResourceResponse? {
-        return if (url != null && url.isSupported) {
+        return if (url != null) {
             loader?.getCachedResourceResponse(url)
         } else {
             null
@@ -69,19 +63,21 @@ object YTKWebView {
     fun interceptRequest(request: WebResourceRequest?): WebResourceResponse? {
         if (request?.method == "GET") {
             val url = request.url.toString()
-            if (url.isSupported) {
-                loader?.getCachedResourceResponse(url)?.let {
-                    return it
-                }
+            loader?.getCachedResourceResponse(url)?.let {
+                return it
             }
         }
         return null
     }
 
     fun getCachedResourceStream(url: String?): InputStream? {
-        if (url != null && url.isSupported) {
+        if (url != null) {
             return loader?.getCachedResourceStream(url)
         }
         return null
+    }
+
+    fun getLifecycle(): YTKWebViewLifecycle {
+        return ytkWebViewClient.ytkWebViewLifecycle
     }
 }

@@ -7,7 +7,9 @@ import java.io.InputStream
  * @author zheng on 12/24/18
  */
 
-class AssetsResourceLoader(private val context: Context) : CacheResourceLoader {
+class AssetsResourceLoader(
+    private val context: Context,
+    private val directory: String) : CacheResourceLoader {
 
     override fun getCachedResourceStream(url: String?): InputStream? {
         if (url == null) {
@@ -15,7 +17,7 @@ class AssetsResourceLoader(private val context: Context) : CacheResourceLoader {
         }
         val path = FileNameUtils.getFilePath(url)
         return try {
-            context.assets.open("cache/$path")
+            context.assets.open("$directory/$path")
         } catch (e: Throwable) {
             null
         }

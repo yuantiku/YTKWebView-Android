@@ -10,19 +10,30 @@ import java.io.InputStream
 
 class DefaultCacheResourceLoader(
     private val context: Context,
-    directory: String? = null) : CacheResourceLoader {
+    assetsDirectory: String? = null,
+    cacheDirectory: String? = null) : CacheResourceLoader {
 
-    private val cacheDir = if (directory != null) {
-        File(directory)
+    private val cacheDir = if (cacheDirectory != null) {
+        File(cacheDirectory)
     } else {
         File(context.filesDir, "cache")
     }
 
+    private val protocols = listOf("http://", "https://")
+
+    private val String.isSupported: Boolean
+        get() = protocols.any { this.startsWith(it) }
+
     private val innerLoaders by lazy {
-        listOf(AssetsResourceLoader(context), FileResourceLoader(cacheDir))
+        listOf(
+            AssetsResourceLoader(context, assetsDirectory ?: "cache"),
+            FileResourceLoader(cacheDir))
     }
 
     override fun getCachedResourceStream(url: String?): InputStream? {
+        if (url == null || !url.isSupported) {
+            return null
+        }
         innerLoaders.forEach { loader ->
             loader.getCachedResourceStream(url)?.let {
                 return it

@@ -18,11 +18,12 @@ class FileTest {
 
     private val testUrl = "https://ytkwebview.com/file1.html"
     private val fileContent = "<html><body>ha</body></html>"
+    private lateinit var ytkWebView: YTKWebView
 
     @Before
     fun prepare() {
         val appContext = InstrumentationRegistry.getTargetContext()
-        YTKWebView.init(appContext)
+        ytkWebView = YTKWebView(appContext)
 
         val dir = File(appContext.filesDir, "cache/ytkwebview.com")
         dir.mkdirs()
@@ -34,7 +35,7 @@ class FileTest {
 
     @Test
     fun testFile() {
-        val response = YTKWebView.interceptRequest(testUrl)
+        val response = ytkWebView.interceptRequest(testUrl)
         assertEquals(response!!.mimeType, "text/html")
         response.data.reader().use {
             assertEquals(fileContent, it.readText())
