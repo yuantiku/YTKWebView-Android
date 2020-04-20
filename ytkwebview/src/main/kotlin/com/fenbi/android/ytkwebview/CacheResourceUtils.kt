@@ -1,5 +1,6 @@
 package com.fenbi.android.ytkwebview
 
+import android.net.Uri
 import android.os.Build
 import android.webkit.WebResourceResponse
 
@@ -10,7 +11,8 @@ import android.webkit.WebResourceResponse
 fun CacheResourceLoader.getCachedResourceResponse(url: String): WebResourceResponse? {
     val inputStream = getCachedResourceStream(url)
     return if (inputStream != null) {
-        val extension = FileNameUtils.getExtension(url)
+        val path = Uri.parse(url).path.orEmpty()
+        val extension = FileNameUtils.getExtension(path)
         val mimeType = MimeTypes.getMimeType(extension)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val encoding = "UTF-8"
