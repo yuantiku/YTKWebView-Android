@@ -22,7 +22,7 @@ class Test1 {
 
     @Test
     fun test1() {
-        val appContext = InstrumentationRegistry.getTargetContext()
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val ytkWebView = YTKWebView(appContext)
         val response = ytkWebView.interceptRequest("https://ytkwebview.com/notexist.html")
         assertNull(response)

@@ -15,7 +15,7 @@ class AssetsTest {
 
     @Test
     fun testAssets() {
-        val appContext = InstrumentationRegistry.getTargetContext()
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val ytkWebView = YTKWebView(appContext)
         val response = ytkWebView.interceptRequest("https://ytkwebview.com/test.json")
         assertEquals(response!!.mimeType, "application/json")
