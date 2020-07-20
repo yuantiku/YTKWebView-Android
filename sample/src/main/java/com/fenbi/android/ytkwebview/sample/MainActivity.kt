@@ -1,7 +1,7 @@
 package com.fenbi.android.ytkwebview.sample
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.fenbi.android.ytkwebview.R
 
 class MainActivity : AppCompatActivity() {
