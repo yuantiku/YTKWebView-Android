@@ -22,7 +22,7 @@ class LifecycleTest {
 
     @Test
     fun testLifecycle() {
-        val appContext = InstrumentationRegistry.getTargetContext()
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val activity = rule1.activity
         activity.runOnUiThread {
             val lifecycle = YTKWebView(appContext)

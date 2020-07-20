@@ -22,7 +22,7 @@ class FileTest {
 
     @Before
     fun prepare() {
-        val appContext = InstrumentationRegistry.getTargetContext()
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         ytkWebView = YTKWebView(appContext)
 
         val dir = File(appContext.filesDir, "cache/ytkwebview.com")
